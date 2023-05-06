@@ -1,6 +1,6 @@
 #####################################
 #Template Spec ID
-$id = "<Template Spec ID for creating from latest image in gallery - string that has info inscluding Sub, RG and version of spec. Can be foind in proprties on spec>
+$id = "<Template Spec ID for creating from latest image in gallery - string that has info inscluding Sub, RG and version of spec. Can be found in proprties on spec - Example in Create new from gold Template spec>
 # RG for where to put non-domain joined machine for making a new machine
 $RG = <>
 ######################################

@@ -7,49 +7,49 @@
             "metadata": {
                 "description": "Azure location."
             },
-            "defaultValue": "northcentralus"
+            "defaultValue": "<AZURE LOCATION - EXAMPLE: northcentralus>"
         },
         "networkInterfaceName": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "monthlypatching100"
+            "defaultValue": "<RANDOM_NAME>"
         },
         "subnetName": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "SNet-Prod-Direct-out-Host-001"
+            "defaultValue": "<SUBNET_NAME>"
         },
         "virtualNetworkId": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/RG-AVD-Prod-Network-001/providers/Microsoft.Network/virtualNetworks/VNet-AVD-Prod-NorthCentralUS-001"
+            "defaultValue": "</subscriptions/SUBID/resourceGroups/NETWORKS_RG/providers/Microsoft.Network/virtualNetworks/VNET_NAME>"
         },
         "virtualMachineName": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "monthlypatching"
+            "defaultValue": "<RANDOM_NAME>"
         },
         "virtualMachineComputerName": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "monthlypatching"
+            "defaultValue": "<RANDOM_NAME>"
         },
         "virtualMachineRG": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "rg-avd-build-001"
+            "defaultValue": "<RG WHERE YOU WANT NEW VM TO BE PLACED>"
         },
         "osDiskType": {
             "type": "string",
@@ -76,7 +76,7 @@
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "Standard_D8ads_v5"
+            "defaultValue": "<VM SKU - example: Standard_D8ads_v5>"
         },
         "nicDeleteOption": {
             "type": "string",
@@ -90,14 +90,14 @@
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "monthlypatching"
+            "defaultValue": "<RANDOM_USERNAME>"
         },
         "adminPassword": {
             "type": "string",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "M0nthlyP@tching"
+            "defaultValue": "RANDOM_PASSWORD THAT MEETS PASSWORD REQ"
         },
         "patchMode": {
             "type": "string",
@@ -182,7 +182,7 @@
                         "deleteOption": "[parameters('osDiskDeleteOption')]"
                     },
                     "imageReference": {
-                        "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-image-gallery-001/providers/Microsoft.Compute/galleries/Azure_Virtual_Desktop_Image_Gallery/images/Windows11-wOffice-V2-TPM/versions/latest"
+                        "id": "/subscriptions/SUBID/resourceGroups/RG_WHERE_IMAGE_IS_KEPT/providers/Microsoft.Compute/galleries/GALLERY_NAME/images/IMAGENAMEversions/latest"
                     }
                 },
                 "networkProfile": {

@@ -7,14 +7,14 @@
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "Azure_Virtual_Desktop_Image_Gallery"
+            "defaultValue": "<Azure_Virtual_Desktop_Image_Gallery>"
         },
         "imageDefinitionName": {
             "type": "String",
             "metadata": {
                 "description": ""
             },
-            "defaultValue": "Windows11-wOffice-V2-TPM"
+            "defaultValue": ""
         },
         "versionName": {
             "type": "String",
@@ -26,7 +26,7 @@
         "sourceVmId": {
             "type": "String",
             "metadata": {
-                "description": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/RG-AVD-BUILD-001/providers/Microsoft.Compute/virtualMachines/03-16-patch"
+                "description": "/subscriptions/SUBID/resourceGroups/RG_THAT_VM_LIVES_INproviders/Microsoft.Compute/virtualMachines/VMNAME"
             },
             "defaultValue": ""
         },

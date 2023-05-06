@@ -8,10 +8,10 @@
 )
 #>
 ########################################################################
-#Set Variables for Script
-$ResourceGroupName = "rg-avd-shared-pool-001"
-$HostPoolName = "North-Central-Shared"
-$SubscriptionId = "b9045cb2-6581-49b4-a1a5-cf48e88bc119"
+#Set HostPool Variables for Script
+$ResourceGroupName = ""
+$HostPoolName = ""
+$SubscriptionId = ""
 ########################################################################
 
 # Authenticating

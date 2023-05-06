@@ -6,7 +6,7 @@ $GALLERYNAME = <>
 $GALLERYDEFF = <>
 #####################################
 #Template Spec Information
-$id = "<CHANGE TO POINT AT TEMPLATE SPEC>/versions/1.0"
+$id = "<CHANGE TO POINT AT TEMPLATE SPEC - Example in Capture host to gallery template spec>"
 $TemplateSpecRG = <>
 ###########################################################################
 

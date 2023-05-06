@@ -1,4 +1,3 @@
-# Source Contol for this object is located in https://dev.azure.com/cooporg/CO-OP%20Financial%20Services/_git/Platform-AzureVirtualDesktop?path=/&version=GBaa-avd-North-Central-001
 <#[array]$RequiredModules = @(
     'Az.Accounts'
     'Az.Compute'
@@ -10,9 +9,9 @@
 
 ########################################################################
 #Set HostPool Variables for Script
-$ResourceGroupName = "rg-avd-shared-pool-001"
-$HostPoolName = "North-Central-Shared"
-$SubscriptionId = "b9045cb2-6581-49b4-a1a5-cf48e88bc119"
+$ResourceGroupName = "<>"
+$HostPoolName = "<>"
+$SubscriptionId = "<>"
 ########################################################################
 
 # Authenticating

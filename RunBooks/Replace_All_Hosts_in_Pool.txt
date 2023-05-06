@@ -1,4 +1,3 @@
-# Source Contol for this object is located in 
 # Required Modules to be imported to Automation Account (Pay attention to the powershell version)
 #   'Az.Accounts'
 #   'Az.Compute'
@@ -7,17 +6,17 @@
 #   'Az.DesktopVirtualization'
 ########################################################################
 # Set HostPool Variables for Script
-$resourceGroupName = "rg-avd-shared-pool-001"
-$Hostpool = "North-Central-Shared"
-$SubsciptionID = "b9045cb2-6581-49b4-a1a5-cf48e88bc119"
+$resourceGroupName = "<>"
+$Hostpool = "<>"
+$SubsciptionID = "<>"
 # Set Azure Compute Gallery Variables for Script
-$GalleryName = "Azure_Virtual_Desktop_Image_Gallery"
-$GalleryRG = "rg-image-gallery-001"
-$ImageName = "Windows11-wOffice-V2-TPM"
+$GalleryName = "<>"
+$GalleryRG = "<>"
+$ImageName = "<>"
 # Naming for new VMs ("$VMNameRegion-$latestVersion")
-$VMNameRegion = "AVD-NC"
+$VMNameRegion = "AVD-<TWO_LETTER_REGION>"
 # Template Spec ID
-$id = "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Resources/templateSpecs/North_Central_Shared_Pool_Add_2/versions/1.0"
+$id = "<ID of TEMPLATE SPEC (ADD_TO_SHARED_HOST_POOL)>"
 ########################################################################
 
 # Authenticating

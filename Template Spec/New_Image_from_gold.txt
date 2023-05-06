@@ -1,0 +1,262 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure location."
+            },
+            "defaultValue": "northcentralus"
+        },
+        "networkInterfaceName": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "monthlypatching100"
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "SNet-Prod-Direct-out-Host-001"
+        },
+        "virtualNetworkId": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/RG-AVD-Prod-Network-001/providers/Microsoft.Network/virtualNetworks/VNet-AVD-Prod-NorthCentralUS-001"
+        },
+        "virtualMachineName": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "monthlypatching"
+        },
+        "virtualMachineComputerName": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "monthlypatching"
+        },
+        "virtualMachineRG": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "rg-avd-build-001"
+        },
+        "osDiskType": {
+            "type": "string",
+            "allowedValues": [
+                "UltraSSD_LRS",
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS"
+            ],
+            "metadata": {
+                "description": "The VM disk type for the VM: HDD or SSD."
+            },
+            "defaultValue": "Premium_LRS"
+        },
+        "osDiskDeleteOption": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Delete"
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Standard_D8ads_v5"
+        },
+        "nicDeleteOption": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Delete"
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "monthlypatching"
+        },
+        "adminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "M0nthlyP@tching"
+        },
+        "patchMode": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "AutomaticByOS"
+        },
+        "enableHotpatching": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "false"
+        },
+        "securityType": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "TrustedLaunch"
+        },
+        "secureBoot": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "true"
+        },
+        "vTPM": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "true"
+        }
+    },
+    "variables": {
+        "vnetId": "[parameters('virtualNetworkId')]",
+        "vnetName": "[last(split(variables('vnetId'), '/'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('networkInterfaceName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-08-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('virtualMachineName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2022-03-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('osDiskType')]"
+                        },
+                        "deleteOption": "[parameters('osDiskDeleteOption')]"
+                    },
+                    "imageReference": {
+                        "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-image-gallery-001/providers/Microsoft.Compute/galleries/Azure_Virtual_Desktop_Image_Gallery/images/Windows11-wOffice-V2-TPM/versions/latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]",
+                            "properties": {
+                                "deleteOption": "[parameters('nicDeleteOption')]"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineComputerName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "provisionVmAgent": true,
+                        "patchSettings": {
+                            "enableHotpatching": "[parameters('enableHotpatching')]",
+                            "patchMode": "[parameters('patchMode')]"
+                        }
+                    }
+                },
+                "licenseType": "Windows_Client",
+                "securityProfile": {
+                    "securityType": "[parameters('securityType')]",
+                    "uefiSettings": {
+                        "secureBootEnabled": "[parameters('secureBoot')]",
+                        "vTpmEnabled": "[parameters('vTPM')]"
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat(parameters('virtualMachineName'),'/GuestAttestation')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-10-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publisher": "Microsoft.Azure.Security.WindowsAttestation",
+                "type": "GuestAttestation",
+                "typeHandlerVersion": "1.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "AttestationConfig": {
+                        "MaaSettings": {
+                            "maaEndpoint": "",
+                            "maaTenantName": "GuestAttestation"
+                        },
+                        "AscSettings": {
+                            "ascReportingEndpoint": "",
+                            "ascReportingFrequency": ""
+                        },
+                        "useCustomToken": "false",
+                        "disableAlerts": "false"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+            ]
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "string",
+            "value": "[parameters('adminUsername')]"
+        }
+    }
+}

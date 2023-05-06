@@ -1,0 +1,105 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "galleryName": {
+            "type": "String",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Azure_Virtual_Desktop_Image_Gallery"
+        },
+        "imageDefinitionName": {
+            "type": "String",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Windows11-wOffice-V2-TPM"
+        },
+        "versionName": {
+            "type": "String",
+            "metadata": {
+                "description": "Needs to be passed from runbook example - 2.12.3"
+            },
+            "defaultValue": "1.1.1"
+        },
+        "sourceVmId": {
+            "type": "String",
+            "metadata": {
+                "description": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/RG-AVD-BUILD-001/providers/Microsoft.Compute/virtualMachines/03-16-patch"
+            },
+            "defaultValue": ""
+        },
+        "defaultReplicaCount": {
+            "type": "String",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "3"
+        },
+        "excludedFromLatest": {
+            "type": "String",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "false"
+        },
+        "regionReplications": {
+            "type": "Array",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": [
+                {
+                    "name": "northcentralus",
+                    "regionalReplicaCount": 1,
+                    "storageAccountType": "Premium_LRS"
+                },
+                {
+                    "name": "southcentralus",
+                    "regionalReplicaCount": 1,
+                    "storageAccountType": "Premium_LRS"
+                }
+            ]
+        },
+        "location": {
+            "type": "String",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "northcentralus"
+        },
+        "endOfLife": {
+            "type": "String",
+            "metadata": {
+                "description": "Needs to be passed from runbook example - 2023-04-29T04:00:00.000Z"
+            },
+            "defaultValue": "2023-04-29T04:00:00.000Z"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/galleries/images/versions",
+            "apiVersion": "2021-10-01",
+            "name": "[concat(parameters('galleryName'), '/', parameters('imageDefinitionName'), '/', parameters('versionName'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "publishingProfile": {
+                    "replicaCount": "[parameters('defaultReplicaCount')]",
+                    "targetRegions": "[parameters('regionReplications')]",
+                    "excludeFromLatest": "[parameters('excludedFromLatest')]",
+                    "endOfLifeDate": "[parameters('endOfLife')]"
+                },
+                "storageProfile": {
+                    "source": {
+                        "id": "[parameters('sourceVmId')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

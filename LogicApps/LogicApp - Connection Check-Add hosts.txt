@@ -1,0 +1,859 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition_that_if_the_pool_has_more_than_2.7_average_connections": {
+                "actions": {
+                    "Run_Automation_to_add_2_hosts_to_pool": {
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azureautomation']['connectionId']"
+                                }
+                            },
+                            "method": "put",
+                            "path": "/subscriptions/@{encodeURIComponent('b9045cb2-6581-49b4-a1a5-cf48e88bc119')}/resourceGroups/@{encodeURIComponent('rg-automation-north-central-001')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('aa-avd-North-Central-001')}/jobs",
+                            "queries": {
+                                "runbookName": "Add_Hosts_to_Shared_Pool",
+                                "wait": true,
+                                "x-ms-api-version": "2015-10-31"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    },
+                    "Send_an_email_(V2)": {
+                        "inputs": {
+                            "body": {
+                                "Body": "<p><br>\n<br>\nThis email is to notify you that the automation to add 2 new hosts to the @{variables('HP')} pool was just run. <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared/overview\">Please ensure that there are no issues</a> &nbsp;and that the new hosts are online and avaible to take connections .<br>\n<br>\nConnection Count: @{variables('Total Connections over all hosts')}<br>\nHosts Prior to Automation running: @{variables('Total Number of hosts')}<br>\n<br>\n<br>\nThis automation was run because there was an average higher than 2.7 across all hosts in the pool (@{variables('Hosts divided by connections')}). This automation checks once an hour so also make sure that it does not need to be run again. This automation adds 2 hosts to the pool. If that number needs to change. You need to edit the Template spec associated with this automation.<br>\n<br>\nIf more hosts are needed to be added quickly. I recomend clicking start on the <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Automation/automationAccounts/aa-avd-North-Central-001/runbooks/Add_Hosts_to_Shared_Pool/overview\">Runbook</a> , just Click Start after clicking the link.<br>\n<br>\nHosts are added with the naming convention of \"AVD-NC-Pool-\" and the numbers are incrimented based off the highest number in the pool at that time.<br>\n<br>\n------------------------------------------------------------------------------------<br>\n<br>\nYou can find the LogicApp automation <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Logic/workflows/la-avd-shared-alerting-NC-001/designer\">here</a><br>\nThis calls an automation account runbook that is found <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Automation/automationAccounts/aa-avd-North-Central-001/runbooks/Add_Hosts_to_Shared_Pool/overview\">here</a><br>\nYou can find the template spec <a href=\"https://portal.azure.com/#view/Microsoft_Azure_TemplateSpecs/TemplatesListBlade\">here</a> that the automation deploys<br>\n<br>\n------------------------------------------------------------------------------------<br>\n<br>\nHere is the <a href=\"https://portal.azure.com/#view/Microsoft_Azure_WVD/WvdManagerMenuBlade/~/insightPreview\">main dashboard for AVD</a><br>\nHere is the <a href=\"https://portal.azure.com/#@coop.org/dashboard/arm/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourcegroups/rg-avd-azure-monitor-001/providers/microsoft.portal/dashboards/11b1adb0-3468-4a6a-9eab-63552a72b484\">Sepagio Dashboard</a>&nbsp;</p>",
+                                "Cc": "charles.anepohl@coop.org;william.herman@coop.org",
+                                "Importance": "Normal",
+                                "Subject": "@{variables('HP')} Status (AVD)",
+                                "To": "COOPVDITeam@coop.org"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['office365']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/v2/Mail"
+                        },
+                        "runAfter": {
+                            "Run_Automation_to_add_2_hosts_to_pool": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "greater": [
+                                "@variables('Hosts divided by connections')",
+                                2.7
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Set_Host_Connection_Average": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "For_each_item_in_JSON": {
+                "actions": {
+                    "Increment_Connections_on_hosts": {
+                        "inputs": {
+                            "name": "Total Connections over all hosts",
+                            "value": "@int(variables('.properties.sessions'))"
+                        },
+                        "runAfter": {
+                            "Set_variable_Name": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "IncrementVariable"
+                    },
+                    "Increment_Total_Hosts": {
+                        "inputs": {
+                            "name": "Total Number of hosts"
+                        },
+                        "runAfter": {
+                            "Increment_Connections_on_hosts": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "IncrementVariable"
+                    },
+                    "Set_variable_Name": {
+                        "inputs": {
+                            "name": "name",
+                            "value": "@items('For_each_item_in_JSON')?['name']"
+                        },
+                        "runAfter": {
+                            "Set_variable_sessions": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "SetVariable"
+                    },
+                    "Set_variable_sessions": {
+                        "inputs": {
+                            "name": ".properties.sessions",
+                            "value": "@{items('For_each_item_in_JSON')?['properties']?['sessions']}"
+                        },
+                        "runAfter": {
+                            "Set_variable_status": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "SetVariable"
+                    },
+                    "Set_variable_status": {
+                        "inputs": {
+                            "name": ".properties.status",
+                            "value": "@items('For_each_item_in_JSON')?['properties']?['status']"
+                        },
+                        "runAfter": {},
+                        "type": "SetVariable"
+                    }
+                },
+                "foreach": "@body('Parse_JSON_for_Host_Pool_Information')?['value']",
+                "runAfter": {
+                    "Parse_JSON_for_Host_Pool_Information": [
+                        "Succeeded"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "concurrency": {
+                        "repetitions": 1
+                    }
+                },
+                "type": "Foreach"
+            },
+            "HTTP_Call_to_API_to_return_AVD_information": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://management.azure.com",
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/@{variables('RG')}/providers/Microsoft.DesktopVirtualization/hostPools/@{variables('HP')}/sessionHosts?api-version=2022-02-10-preview"
+                },
+                "runAfter": {
+                    "Initialize_Number_of_Hosts_After_Automation": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_Host_Pool_Name": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "HP",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_Resource_Group_Name": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_Number_of_Hosts_After_Automation": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Initialize Number of Hosts After Automation",
+                            "type": "integer"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Set_Resource_Group_Name": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_Resource_Group_Name": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "RG",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_host_divided_by_connections": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_Total_Connections": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Total Connections over all hosts",
+                            "type": "float",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_status": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_Total_number_of_Hosts": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Total Number of hosts",
+                            "type": "float",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_Total_Connections": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_host_divided_by_connections": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Hosts divided by connections",
+                            "type": "float"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_Total_number_of_Hosts": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_name": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "name",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Initialize_sessions": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": ".properties.sessions",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_name": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_status": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": ".properties.status",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_sessions": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Parse_JSON_for_Host_Pool_Information": {
+                "inputs": {
+                    "content": "@body('HTTP_Call_to_API_to_return_AVD_information')",
+                    "schema": {
+                        "properties": {
+                            "content": {
+                                "properties": {
+                                    "nextLink": {},
+                                    "value": {
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "properties": {
+                                                    "properties": {
+                                                        "agentVersion": {
+                                                            "type": "string"
+                                                        },
+                                                        "allowNewSession": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "assignedUser": {},
+                                                        "friendlyName": {},
+                                                        "lastHeartBeat": {
+                                                            "type": "string"
+                                                        },
+                                                        "lastUpdateTime": {
+                                                            "type": "string"
+                                                        },
+                                                        "objectId": {
+                                                            "type": "string"
+                                                        },
+                                                        "osVersion": {
+                                                            "type": "string"
+                                                        },
+                                                        "resourceId": {
+                                                            "type": "string"
+                                                        },
+                                                        "sessionHostHealthCheckResults": {
+                                                            "items": {
+                                                                "properties": {
+                                                                    "additionalFailureDetails": {
+                                                                        "properties": {
+                                                                            "errorCode": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "lastHealthCheckDateTime": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "message": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "healthCheckName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "healthCheckResult": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "healthCheckName",
+                                                                    "healthCheckResult",
+                                                                    "additionalFailureDetails"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "type": "array"
+                                                        },
+                                                        "sessions": {
+                                                            "type": "integer"
+                                                        },
+                                                        "status": {
+                                                            "type": "string"
+                                                        },
+                                                        "statusTimestamp": {
+                                                            "type": "string"
+                                                        },
+                                                        "sxSStackVersion": {
+                                                            "type": "string"
+                                                        },
+                                                        "updateErrorMessage": {
+                                                            "type": "string"
+                                                        },
+                                                        "updateState": {
+                                                            "type": "string"
+                                                        },
+                                                        "virtualMachineId": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "systemData": {
+                                                    "properties": {
+                                                        "createdAt": {
+                                                            "type": "string"
+                                                        },
+                                                        "createdBy": {},
+                                                        "createdByType": {},
+                                                        "lastModifiedAt": {
+                                                            "type": "string"
+                                                        },
+                                                        "lastModifiedBy": {
+                                                            "type": "string"
+                                                        },
+                                                        "lastModifiedByType": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "name",
+                                                "id",
+                                                "type",
+                                                "properties",
+                                                "systemData"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "type": "array"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "schema": {
+                                "properties": {
+                                    "properties": {
+                                        "properties": {
+                                            "nextLink": {
+                                                "properties": {},
+                                                "type": "object"
+                                            },
+                                            "value": {
+                                                "properties": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "name": {
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "agentVersion": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "allowNewSession": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "assignedUser": {
+                                                                                        "properties": {},
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "friendlyName": {
+                                                                                        "properties": {},
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lastHeartBeat": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lastUpdateTime": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "objectId": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "osVersion": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "resourceId": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "sessionHostHealthCheckResults": {
+                                                                                        "properties": {
+                                                                                            "items": {
+                                                                                                "properties": {
+                                                                                                    "properties": {
+                                                                                                        "properties": {
+                                                                                                            "additionalFailureDetails": {
+                                                                                                                "properties": {
+                                                                                                                    "properties": {
+                                                                                                                        "properties": {
+                                                                                                                            "errorCode": {
+                                                                                                                                "properties": {
+                                                                                                                                    "type": {
+                                                                                                                                        "type": "string"
+                                                                                                                                    }
+                                                                                                                                },
+                                                                                                                                "type": "object"
+                                                                                                                            },
+                                                                                                                            "lastHealthCheckDateTime": {
+                                                                                                                                "properties": {
+                                                                                                                                    "type": {
+                                                                                                                                        "type": "string"
+                                                                                                                                    }
+                                                                                                                                },
+                                                                                                                                "type": "object"
+                                                                                                                            },
+                                                                                                                            "message": {
+                                                                                                                                "properties": {
+                                                                                                                                    "type": {
+                                                                                                                                        "type": "string"
+                                                                                                                                    }
+                                                                                                                                },
+                                                                                                                                "type": "object"
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        "type": "object"
+                                                                                                                    },
+                                                                                                                    "type": {
+                                                                                                                        "type": "string"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            },
+                                                                                                            "healthCheckName": {
+                                                                                                                "properties": {
+                                                                                                                    "type": {
+                                                                                                                        "type": "string"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            },
+                                                                                                            "healthCheckResult": {
+                                                                                                                "properties": {
+                                                                                                                    "type": {
+                                                                                                                        "type": "string"
+                                                                                                                    }
+                                                                                                                },
+                                                                                                                "type": "object"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "type": "object"
+                                                                                                    },
+                                                                                                    "required": {
+                                                                                                        "items": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "type": "array"
+                                                                                                    },
+                                                                                                    "type": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "sessions": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "status": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "statusTimestamp": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "sxSStackVersion": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "updateErrorMessage": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "updateState": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "virtualMachineId": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "systemData": {
+                                                                        "properties": {
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "createdAt": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "createdBy": {
+                                                                                        "properties": {},
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "createdByType": {
+                                                                                        "properties": {},
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lastModifiedAt": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lastModifiedBy": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lastModifiedByType": {
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "required": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "HTTP_Call_to_API_to_return_AVD_information": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Set_Host_Connection_Average": {
+                "inputs": {
+                    "name": "Hosts divided by connections",
+                    "value": "@div(variables('Total Connections over all hosts'),variables('Total Number of hosts'))"
+                },
+                "runAfter": {
+                    "For_each_item_in_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Set_Host_Pool_Name": {
+                "inputs": {
+                    "name": "HP",
+                    "value": "North-Central-Shared"
+                },
+                "runAfter": {
+                    "Initialize_Host_Pool_Name": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Set_Resource_Group_Name": {
+                "inputs": {
+                    "name": "RG",
+                    "value": "RG-AVD-SHARED-POOL-001"
+                },
+                "runAfter": {
+                    "Set_Host_Pool_Name": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "Recurrence": {
+                "evaluatedRecurrence": {
+                    "frequency": "Hour",
+                    "interval": 1,
+                    "timeZone": "Eastern Standard Time"
+                },
+                "recurrence": {
+                    "frequency": "Hour",
+                    "interval": 1,
+                    "timeZone": "Eastern Standard Time"
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureautomation": {
+                    "connectionId": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Web/connections/azureautomation",
+                    "connectionName": "azureautomation",
+                    "connectionProperties": {
+                        "authentication": {
+                            "type": "ManagedServiceIdentity"
+                        }
+                    },
+                    "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/providers/Microsoft.Web/locations/northcentralus/managedApis/azureautomation"
+                },
+                "office365": {
+                    "connectionId": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Web/connections/office365",
+                    "connectionName": "office365",
+                    "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/providers/Microsoft.Web/locations/northcentralus/managedApis/office365"
+                }
+            }
+        }
+    }
+}

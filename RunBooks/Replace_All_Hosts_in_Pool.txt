@@ -16,7 +16,7 @@ $ImageName = "<>"
 # Naming for new VMs ("$VMNameRegion-$latestVersion")
 $VMNameRegion = "AVD-<TWO_LETTER_REGION>"
 # Template Spec ID
-$id = "<ID of TEMPLATE SPEC (ADD_TO_SHARED_HOST_POOL)>"
+$id = "<ID of TEMPLATE SPEC (Example: ADD_TO_SHARED_HOST_POOL)>"
 ########################################################################
 
 # Authenticating

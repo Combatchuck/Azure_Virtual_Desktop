@@ -21,7 +21,7 @@
             "metadata": {
                 "description": "The name of the Hostpool to be created."
             },
-            "defaultValue": "North-Central-Shared"
+            "defaultValue": "<Set to HostPool Name>"
         },
         "hostpoolToken": {
             "type": "string",
@@ -34,14 +34,14 @@
             "metadata": {
                 "description": "The resource group of the host pool to be updated. Used when the host pool was created empty."
             },
-            "defaultValue": "rg-avd-shared-pool-001"
+            "defaultValue": "<RG that contains the HostPool>
         },
         "hostpoolLocation": {
             "type": "string",
             "metadata": {
                 "description": "The location of the host pool to be updated. Used when the host pool was created empty."
             },
-            "defaultValue": "northcentralus"
+            "defaultValue": "<region that the hostpool erxists - example: "northcentralus>"
         },
         "hostpoolProperties": {
             "type": "object",
@@ -62,14 +62,14 @@
             "metadata": {
                 "description": "A username in the domain that has privileges to join the session hosts to the domain. For example, 'vmjoiner@contoso.com'."
             },
-            "defaultValue": "svcmAVDNorthCentralP@corp.coop.org"
+            "defaultValue": "<username@domainname"
         },
         "administratorAccountPassword": {
             "type": "string",
             "metadata": {
                 "description": "The password that corresponds to the existing domain username."
             },
-            "defaultValue": "{B37DE9FF-BAF0-48FD-A146-9C2957EBD2E5}"
+            "defaultValue": "<Password for domain account>"
         },
         "vmAdministratorAccountUsername": {
             "type": "string",
@@ -164,21 +164,21 @@
             "metadata": {
                 "description": "The resource group of the session host VMs."
             },
-            "defaultValue": "rg-avd-shared-pool-001"
+            "defaultValue": "<RG that all the session hosts will be in>"
         },
         "vmLocation": {
             "type": "string",
             "metadata": {
                 "description": "The location of the session host VMs."
             },
-            "defaultValue": "northcentralus"
+            "defaultValue": "<Azure region location that all session hosts will live in>"
         },
         "vmSize": {
             "type": "string",
             "metadata": {
                 "description": "The size of the session host VMs."
             },
-            "defaultValue": "Standard_D8ads_v5"
+            "defaultValue": "<VM size - Example: "Standard_D8ads_v5">"
         },
         "vmDiskSizeGB": {
             "type": "int",
@@ -224,7 +224,7 @@
             "metadata": {
                 "description": "This prefix will be used in combination with the VM number to create the VM name. If using 'rdsh' as the prefix, VMs would be named 'rdsh-0', 'rdsh-1', etc. You should use a unique prefix to reduce name collisions in Active Directory."
             },
-            "defaultValue": "AVD-NC-Pool"
+            "defaultValue": ""
         },
         "vmImageType": {
             "type": "string",
@@ -242,21 +242,21 @@
             "metadata": {
                 "description": "(Required when vmImageType = Gallery) Gallery image Offer."
             },
-            "defaultValue": "office-365"
+            "defaultValue": "<enter info>"
         },
         "vmGalleryImagePublisher": {
             "type": "string",
             "metadata": {
                 "description": "(Required when vmImageType = Gallery) Gallery image Publisher."
             },
-            "defaultValue": "microsoftwindowsdesktop"
+            "defaultValue": "<enter info>"
         },
         "vmGalleryImageSKU": {
             "type": "string",
             "metadata": {
                 "description": "(Required when vmImageType = Gallery) Gallery image SKU."
             },
-            "defaultValue": "win11-22h2-avd-m365"
+            "defaultValue": "<enter info>"
         },
         "vmGalleryImageVersion": {
             "type": "string",
@@ -277,7 +277,7 @@
             "metadata": {
                 "description": "(Required when vmImageType = CustomImage) Resource ID of the image"
             },
-            "defaultValue": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-image-gallery-001/providers/Microsoft.Compute/galleries/Azure_Virtual_Desktop_Image_Gallery/images/Windows11-wOffice-V2-TPM/versions/latest"
+            "defaultValue": "</subscriptions/SUBID/resourceGroups/IMAGE_GALLERY_RG/providers/Microsoft.Compute/galleries/NAME_OF_GALLERY/images/IMAGE_NAME_IN_GALLERY/versions/latest>"
         },
         "vmDiskType": {
             "type": "string",
@@ -297,21 +297,21 @@
             "metadata": {
                 "description": "The name of the virtual network the VMs will be connected to."
             },
-            "defaultValue": "VNet-AVD-Prod-NorthCentralUS-001"
+            "defaultValue": "<VNET NAME>"
         },
         "existingSubnetName": {
             "type": "string",
             "metadata": {
                 "description": "The subnet the VMs will be placed in."
             },
-            "defaultValue": "SNet-Prod-Pooled-Host-001"
+            "defaultValue": "<SUBNET NAME>"
         },
         "virtualNetworkResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "The resource group containing the existing virtual network."
             },
-            "defaultValue": "RG-AVD-Prod-Network-001"
+            "defaultValue": "<RG THAT THE NETWORK LIVES IN>"
         },
         "createNetworkSecurityGroup": {
             "type": "bool",
@@ -325,7 +325,7 @@
             "metadata": {
                 "description": "The resource id of an existing network security group"
             },
-            "defaultValue": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/RG-AVD-Prod-Network-001/providers/Microsoft.Network/networkSecurityGroups/NSG-VNet-AVD-Prod-NorthCentralUS-001"
+            "defaultValue": "</subscriptions/SUBID/resourceGroups/NETWORK_RG/providers/Microsoft.Network/networkSecurityGroups/NSG_NAME>"
         },
         "networkSecurityGroupRules": {
             "type": "array",
@@ -347,7 +347,7 @@
                 "description": "The tags to be assigned to the network interfaces"
             },
             "defaultValue": {
-                "cm-resource-parent": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared"
+                "cm-resource-parent": "</subscriptions/SUBID/resourceGroups/HOSTPOOL_RG_NAME/providers/Microsoft.DesktopVirtualization/hostpools/HOSTPOOL_NAME>"
             }
         },
         "networkSecurityGroupTags": {
@@ -356,7 +356,7 @@
                 "description": "The tags to be assigned to the network security groups"
             },
             "defaultValue": {
-                "cm-resource-parent": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared"
+                "cm-resource-parent": "</subscriptions/SUBID/resourceGroups/RG_OF_HOSTPOOL/providers/Microsoft.DesktopVirtualization/hostpools/HOSTPOOL_NAME>"
             }
         },
         "virtualMachineTags": {
@@ -365,7 +365,7 @@
                 "description": "The tags to be assigned to the virtual machines"
             },
             "defaultValue": {
-                "cm-resource-parent": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared"
+                "cm-resource-parent": "</subscriptions/SUBID/resourceGroups/RG_OF_HOSTPOOL/providers/Microsoft.DesktopVirtualization/hostpools/HOSTPOOL_NAME>"
             }
         },
         "imageTags": {
@@ -374,7 +374,7 @@
                 "description": "The tags to be assigned to the images"
             },
             "defaultValue": {
-                "cm-resource-parent": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared"
+                "cm-resource-parent": "</subscriptions/SUBID/resourceGroups/RG_OF_HOSTPOOL/providers/Microsoft.DesktopVirtualization/hostpools/HOSTPOOL_NAME>"
             }
         },
         "deploymentId": {
@@ -396,14 +396,14 @@
             "metadata": {
                 "description": "OUPath for the domain join"
             },
-            "defaultValue": "OU=Generalized_Pool,OU=Pooled_Users,OU=North_Central,OU=Azure Virtual Desktop,DC=corp,DC=coop,DC=org"
+            "defaultValue": "<OU PATH OF PLACE TO PUT NEW SESSION OBJECTS>"
         },
         "domain": {
             "type": "string",
             "metadata": {
                 "description": "Domain to join"
             },
-            "defaultValue": "corp.coop.org"
+            "defaultValue": "<DOMAIN NAME>"
         },
         "aadJoin": {
             "type": "bool",

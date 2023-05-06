@@ -12,9 +12,9 @@
                                 }
                             },
                             "method": "put",
-                            "path": "/subscriptions/@{encodeURIComponent('b9045cb2-6581-49b4-a1a5-cf48e88bc119')}/resourceGroups/@{encodeURIComponent('rg-automation-north-central-001')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('aa-avd-North-Central-001')}/jobs",
+                            "path": "/subscriptions/@{encodeURIComponent('<REPLACE SUB ID>')}/resourceGroups/@{encodeURIComponent('<RG THAT CONTAINS THE AUTOMATION ACCOUNT USED TO ADD HOSTS TO POOL>')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('<AUTOMATION ACCOUNT NAME')}/jobs",
                             "queries": {
-                                "runbookName": "Add_Hosts_to_Shared_Pool",
+                                "runbookName": "<RUNBOOK NAME>",
                                 "wait": true,
                                 "x-ms-api-version": "2015-10-31"
                             }
@@ -25,11 +25,11 @@
                     "Send_an_email_(V2)": {
                         "inputs": {
                             "body": {
-                                "Body": "<p><br>\n<br>\nThis email is to notify you that the automation to add 2 new hosts to the @{variables('HP')} pool was just run. <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-avd-shared-pool-001/providers/Microsoft.DesktopVirtualization/hostpools/North-Central-Shared/overview\">Please ensure that there are no issues</a> &nbsp;and that the new hosts are online and avaible to take connections .<br>\n<br>\nConnection Count: @{variables('Total Connections over all hosts')}<br>\nHosts Prior to Automation running: @{variables('Total Number of hosts')}<br>\n<br>\n<br>\nThis automation was run because there was an average higher than 2.7 across all hosts in the pool (@{variables('Hosts divided by connections')}). This automation checks once an hour so also make sure that it does not need to be run again. This automation adds 2 hosts to the pool. If that number needs to change. You need to edit the Template spec associated with this automation.<br>\n<br>\nIf more hosts are needed to be added quickly. I recomend clicking start on the <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Automation/automationAccounts/aa-avd-North-Central-001/runbooks/Add_Hosts_to_Shared_Pool/overview\">Runbook</a> , just Click Start after clicking the link.<br>\n<br>\nHosts are added with the naming convention of \"AVD-NC-Pool-\" and the numbers are incrimented based off the highest number in the pool at that time.<br>\n<br>\n------------------------------------------------------------------------------------<br>\n<br>\nYou can find the LogicApp automation <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Logic/workflows/la-avd-shared-alerting-NC-001/designer\">here</a><br>\nThis calls an automation account runbook that is found <a href=\"https://portal.azure.com/#@coop.org/resource/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Automation/automationAccounts/aa-avd-North-Central-001/runbooks/Add_Hosts_to_Shared_Pool/overview\">here</a><br>\nYou can find the template spec <a href=\"https://portal.azure.com/#view/Microsoft_Azure_TemplateSpecs/TemplatesListBlade\">here</a> that the automation deploys<br>\n<br>\n------------------------------------------------------------------------------------<br>\n<br>\nHere is the <a href=\"https://portal.azure.com/#view/Microsoft_Azure_WVD/WvdManagerMenuBlade/~/insightPreview\">main dashboard for AVD</a><br>\nHere is the <a href=\"https://portal.azure.com/#@coop.org/dashboard/arm/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourcegroups/rg-avd-azure-monitor-001/providers/microsoft.portal/dashboards/11b1adb0-3468-4a6a-9eab-63552a72b484\">Sepagio Dashboard</a>&nbsp;</p>",
-                                "Cc": "charles.anepohl@coop.org;william.herman@coop.org",
+                                "Body": "<p><br>\n<br>\nThis email is to notify you that the automation to add 2 new hosts to the @{variables('HP')} pool was just run. </a>Please ensure that there are no issues</a> &nbsp;and that the new hosts are online and avaible to take connections .<br>\n<br>\nConnection Count: @{variables('Total Connections over all hosts')}<br>\nHosts Prior to Automation running: @{variables('Total Number of hosts')}<br>\n<br>\n<br>\nThis automation was run because there was an average higher than 2.7 across all hosts in the pool (@{variables('Hosts divided by connections')}). This automation checks once an hour so also make sure that it does not need to be run again. This automation adds 2 hosts to the pool. If that number needs to change. You need to edit the Template spec associated with this automation.<br>\n<br>\nI>\n------------------------------------------------------------------------------------<br>\n<br>\n,
+                                "Cc": "",
                                 "Importance": "Normal",
                                 "Subject": "@{variables('HP')} Status (AVD)",
-                                "To": "COOPVDITeam@coop.org"
+                                "To": ""
                             },
                             "host": {
                                 "connection": {
@@ -142,7 +142,7 @@
                         "type": "ManagedServiceIdentity"
                     },
                     "method": "GET",
-                    "uri": "https://management.azure.com/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/@{variables('RG')}/providers/Microsoft.DesktopVirtualization/hostPools/@{variables('HP')}/sessionHosts?api-version=2022-02-10-preview"
+                    "uri": "https://management.azure.com/subscriptions/<SUBID_NEEDS_TO_BE_REPLACED>/resourceGroups/@{variables('RG')}/providers/Microsoft.DesktopVirtualization/hostPools/@{variables('HP')}/sessionHosts?api-version=2022-02-10-preview"
                 },
                 "runAfter": {
                     "Initialize_Number_of_Hosts_After_Automation": [
@@ -789,7 +789,7 @@
             "Set_Host_Pool_Name": {
                 "inputs": {
                     "name": "HP",
-                    "value": "North-Central-Shared"
+                    "value": "HOSTPOOL_NAME"
                 },
                 "runAfter": {
                     "Initialize_Host_Pool_Name": [
@@ -801,7 +801,7 @@
             "Set_Resource_Group_Name": {
                 "inputs": {
                     "name": "RG",
-                    "value": "RG-AVD-SHARED-POOL-001"
+                    "value": "RG_NAME_FOR_HOSTPOOL"
                 },
                 "runAfter": {
                     "Set_Host_Pool_Name": [

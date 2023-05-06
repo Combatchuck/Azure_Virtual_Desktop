@@ -1,0 +1,57 @@
+# Source Contol for this object is located in https://dev.azure.com/cooporg/CO-OP%20Financial%20Services/_git/Platform-AzureVirtualDesktop?path=/&version=GBaa-avd-image-automation-001
+#Template Spec ID
+$id = "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-image-automation-001/providers/Microsoft.Resources/templateSpecs/Capture_Image_to_Gallery/versions/1.0"
+
+# Authenticating
+Write-Output "Logging in as automation's account system assigned Managed Identy"
+
+try
+
+{
+    "Connecting in to Azure..."
+    Connect-AzAccount -Identity
+}
+catch {
+    Write-Error -Message $_.Exception
+    throw $_.Exception
+}
+
+# Get the latest image version number
+Write-Host "Determining next host number available for use"
+$imageVersions = Get-AzGalleryImageVersion -GalleryName "Azure_Virtual_Desktop_Image_Gallery" -ResourceGroupName "rg-image-gallery-001" -GalleryImageDefinitionName "Windows11-wOffice-V2-TPM"
+
+$HighestNumber = $imageVersions.Name | ForEach-Object {
+    $versionComponents = $_ -split '\.'
+    [PSCustomObject]@{
+        Name = $_
+        Major = [int]$versionComponents[0]
+        Minor = if($versionComponents.Count -ge 2){ [int]$versionComponents[1] } else { 0 }
+        Patch = if($versionComponents.Count -ge 3){ [int]$versionComponents[2] } else { 0 }
+    }
+} | Sort-Object -Property Major, Minor, Patch -Descending | Select-Object -ExpandProperty Name
+
+$latestVersion = $highestNumber | Sort-Object -Property @{Expression={[version]($_)}} -Descending | Select-Object -First 1
+
+$nextPatchVersion = '{0}.{1}.{2:00}' -f $latestVersion.Major, $latestVersion.Minor, (Get-Date).Month
+
+# Get the current time in local time zone
+$dateofcreate = Get-Date -Format "MM-dd"
+$sourceVmId = "$dateofcreate-patch"
+
+#VM for Capture
+$sourceVmId = "$dateofcreate-patch"
+Write-Host ""
+
+#Getting EOL date
+$format = "yyyy-MM-ddTHH:mm:ss.fffZ"
+$date = Get-Date
+$utcDate = Get-Date -Date $date.ToUniversalTime() -Format $format
+$futureDate = $date.AddDays(40).ToUniversalTime().ToString($format)
+
+Write-Host "$sourceVmId will be captured to Azure_Virtual_Desktop_Image_Gallery - Windows11-wOffice-V2-TPM as $nextPatchVersion. $futureDate will be set as End of Life for this image."
+
+New-AzResourceGroupDeployment -TemplateSpecID $id -ResourceGroupName rg-image-automation-001 -versionName $nextPatchVersion -endOfLife $futureDate -sourceVmId $sourceVmId
+
+Write-Output 'Disconnecting AZ Session'
+$DisconnectInfo = Disconnect-AzAccount
+Write-Output 'End of Job'

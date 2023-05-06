@@ -1,6 +1,14 @@
-# Source Contol for this object is located in https://dev.azure.com/cooporg/CO-OP%20Financial%20Services/_git/Platform-AzureVirtualDesktop?path=/&version=GBaa-avd-image-automation-001
-#Template Spec ID
-$id = "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-image-automation-001/providers/Microsoft.Resources/templateSpecs/Capture_Image_to_Gallery/versions/1.0"
+###########################################################################
+#SET INFO FOR SCRIPT
+#Image Gallery Information
+$GALLERYNAME = <>
+#GALLERYRGNAME = <>
+$GALLERYDEFF = <>
+#####################################
+#Template Spec Information
+$id = "<CHANGE TO POINT AT TEMPLATE SPEC>/versions/1.0"
+$TemplateSpecRG = <>
+###########################################################################
 
 # Authenticating
 Write-Output "Logging in as automation's account system assigned Managed Identy"
@@ -18,7 +26,7 @@ catch {
 
 # Get the latest image version number
 Write-Host "Determining next host number available for use"
-$imageVersions = Get-AzGalleryImageVersion -GalleryName "Azure_Virtual_Desktop_Image_Gallery" -ResourceGroupName "rg-image-gallery-001" -GalleryImageDefinitionName "Windows11-wOffice-V2-TPM"
+$imageVersions = Get-AzGalleryImageVersion -GalleryName "$GALLERYNAME" -ResourceGroupName "#GALLERYRGNAME" -GalleryImageDefinitionName "$GALLERYDEFF"
 
 $HighestNumber = $imageVersions.Name | ForEach-Object {
     $versionComponents = $_ -split '\.'
@@ -48,9 +56,9 @@ $date = Get-Date
 $utcDate = Get-Date -Date $date.ToUniversalTime() -Format $format
 $futureDate = $date.AddDays(40).ToUniversalTime().ToString($format)
 
-Write-Host "$sourceVmId will be captured to Azure_Virtual_Desktop_Image_Gallery - Windows11-wOffice-V2-TPM as $nextPatchVersion. $futureDate will be set as End of Life for this image."
+Write-Host "$sourceVmId will be captured to $GALLERYNAME - $GALLERYDEFF as $nextPatchVersion. $futureDate will be set as End of Life for this image."
 
-New-AzResourceGroupDeployment -TemplateSpecID $id -ResourceGroupName rg-image-automation-001 -versionName $nextPatchVersion -endOfLife $futureDate -sourceVmId $sourceVmId
+New-AzResourceGroupDeployment -TemplateSpecID $id -ResourceGroupName $TemplateSpecRG -versionName $nextPatchVersion -endOfLife $futureDate -sourceVmId $sourceVmId
 
 Write-Output 'Disconnecting AZ Session'
 $DisconnectInfo = Disconnect-AzAccount

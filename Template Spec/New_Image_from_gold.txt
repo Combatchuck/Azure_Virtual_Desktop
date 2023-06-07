@@ -182,7 +182,7 @@
                         "deleteOption": "[parameters('osDiskDeleteOption')]"
                     },
                     "imageReference": {
-                        "id": "/subscriptions/SUBID/resourceGroups/RG_WHERE_IMAGE_IS_KEPT/providers/Microsoft.Compute/galleries/GALLERY_NAME/images/IMAGENAMEversions/latest"
+                        "id": "/subscriptions/<SUBID>/resourceGroups/<RG_WHERE_IMAGE_IS_KEPT>/providers/Microsoft.Compute/galleries/<GALLERY_NAME>/images/<IMAGENAME>versions/latest"
                     }
                 },
                 "networkProfile": {

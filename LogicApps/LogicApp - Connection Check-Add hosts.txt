@@ -839,19 +839,19 @@
         "$connections": {
             "value": {
                 "azureautomation": {
-                    "connectionId": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Web/connections/azureautomation",
+                    "connectionId": "/subscriptions/<SUBID_NEEDS_TO_BE_REPLACED>/resourceGroups/XXX/providers/Microsoft.Web/connections/azureautomation",
                     "connectionName": "azureautomation",
                     "connectionProperties": {
                         "authentication": {
                             "type": "ManagedServiceIdentity"
                         }
                     },
-                    "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/providers/Microsoft.Web/locations/northcentralus/managedApis/azureautomation"
+                    "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/providers/Microsoft.Web/locations/<Azurelocation>/managedApis/azureautomation"
                 },
                 "office365": {
-                    "connectionId": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/resourceGroups/rg-automation-north-central-001/providers/Microsoft.Web/connections/office365",
+                    "connectionId": "/subscriptions/<SUBID_NEEDS_TO_BE_REPLACED>/resourceGroups/<RG_NEEDS_TO_BE_REPLACED>/providers/Microsoft.Web/connections/office365",
                     "connectionName": "office365",
-                    "id": "/subscriptions/b9045cb2-6581-49b4-a1a5-cf48e88bc119/providers/Microsoft.Web/locations/northcentralus/managedApis/office365"
+                    "id": "/subscriptions/<SUBID_NEEDS_TO_BE_REPLACED>/providers/Microsoft.Web/locations/<Azurelocation>/managedApis/office365"
                 }
             }
         }

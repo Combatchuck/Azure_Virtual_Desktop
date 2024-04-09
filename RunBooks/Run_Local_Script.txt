@@ -2,6 +2,7 @@
 ########################################################################
 # Set Variables for Script
 $rgname = "<resource group name>"
+#Script should be on VM to prevent perm issues
 $ScriptToRun = "C:\<path-to-script>.ps1"
 $Subscription = "<ID of Sub>"
 ########################################################################

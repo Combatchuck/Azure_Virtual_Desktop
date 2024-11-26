@@ -1,0 +1,126 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each_folder_in_sharedpoolprofiles": {
+                "type": "Foreach",
+                "foreach": "@body('List_folders_in_sharedpoolprofiles')",
+                "actions": {
+                    "For_each_file_contained": {
+                        "type": "Foreach",
+                        "foreach": "@body('List_files_in_each_users_folder')",
+                        "actions": {
+                            "Condition_if_file_older_than_60_days": {
+                                "type": "If",
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "greater": [
+                                                "@subtractFromTime(utcNow(), 60, 'Day')",
+                                                "@body('Get_file_metadata_for_each_file_in_folder')?['lastModifiedDateTime']"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "actions": {
+                                    "Delete_VHDX": {
+                                        "type": "ServiceProvider",
+                                        "inputs": {
+                                            "parameters": {
+                                                "fileId": "@items('For_each_file_contained')?['path']"
+                                            },
+                                            "serviceProviderConfiguration": {
+                                                "connectionName": "AzureFile-2",
+                                                "operationId": "deleteFile",
+                                                "serviceProviderId": "/serviceProviders/AzureFile"
+                                            }
+                                        }
+                                    }
+                                },
+                                "else": {
+                                    "actions": {}
+                                },
+                                "runAfter": {
+                                    "Get_file_metadata_for_each_file_in_folder": [
+                                        "SUCCEEDED"
+                                    ]
+                                }
+                            },
+                            "Get_file_metadata_for_each_file_in_folder": {
+                                "type": "ServiceProvider",
+                                "inputs": {
+                                    "parameters": {
+                                        "fileId": "@item()?['path']"
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "AzureFile-2",
+                                        "operationId": "getFileMetadata",
+                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                    }
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "List_files_in_each_users_folder": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    },
+                    "List_files_in_each_users_folder": {
+                        "type": "ServiceProvider",
+                        "inputs": {
+                            "parameters": {
+                                "folderId": "@item()?['path']"
+                            },
+                            "serviceProviderConfiguration": {
+                                "connectionName": "AzureFile-2",
+                                "operationId": "listFolder",
+                                "serviceProviderId": "/serviceProviders/AzureFile"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "List_folders_in_sharedpoolprofiles": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "List_folders_in_sharedpoolprofiles": {
+                "type": "ServiceProvider",
+                "inputs": {
+                    "parameters": {
+                        "folderId": "sharedpool-profiles/Profiles/"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "AzureFile-2",
+                        "operationId": "listFolder",
+                        "serviceProviderId": "/serviceProviders/AzureFile"
+                    }
+                },
+                "runAfter": {}
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "Recurrence_-_Every_Wednesday_at_11AM_EST": {
+                "type": "Recurrence",
+                "recurrence": {
+                    "frequency": "Week",
+                    "interval": 1,
+                    "schedule": {
+                        "hours": [
+                            "11"
+                        ],
+                        "weekDays": [
+                            "Wednesday"
+                        ]
+                    },
+                    "timeZone": "Eastern Standard Time"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}

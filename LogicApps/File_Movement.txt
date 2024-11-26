@@ -1,0 +1,214 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each_Item_seen_on_general-cde_(CDE_General_Share)": {
+                "type": "Foreach",
+                "foreach": "@body('List_files_on_general-cde_(CDE_General_Share)')",
+                "actions": {
+                    "Is_this_the_instructions.txt": {
+                        "type": "If",
+                        "expression": {
+                            "or": [
+                                {
+                                    "equals": [
+                                        "@item()?['name']",
+                                        "instructions.txt"
+                                    ]
+                                }
+                            ]
+                        },
+                        "actions": {},
+                        "else": {
+                            "actions": {
+                                "Is_this_a_folder": {
+                                    "type": "If",
+                                    "expression": {
+                                        "or": [
+                                            {
+                                                "equals": [
+                                                    "@item()?['isFolder']",
+                                                    true
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                        "actions": {
+                                            "Create_file_on_audting-cde_(Auditing_Share_CDE)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "folderPath": "audting-cde\\General-Share",
+                                                        "fileName": "@concat(formatDateTime(utcNow(), 'yyyy-MM-dd-HH-mm'), '_', item()?['name'])",
+                                                        "fileContent": "@body('Get_file_content_for_each_item_on__general-cde_(CDE_General_Share)')"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile-1",
+                                                        "operationId": "createFile",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Get_file_metadata": [
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            },
+                                            "Create_file_on_general-transferred-non-cde_(Transferred)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "folderPath": "general-transferred-non-cde",
+                                                        "fileName": "@items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['name']",
+                                                        "fileContent": "@body('Get_file_content_for_each_item_on__general-cde_(CDE_General_Share)')"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile",
+                                                        "operationId": "createFile",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Get_file_metadata": [
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            },
+                                            "Delete_file_from_general-cde_(CDE_General_Share)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "fileId": "@items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['path']"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile-1",
+                                                        "operationId": "deleteFile",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Verify_file_on_audting-cde_(Auditing_Share_CDE)": [
+                                                        "SUCCEEDED"
+                                                    ],
+                                                    "Verify_file_on_general-transferred-non-cde_(Transferred)": [
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            },
+                                            "Get_file_content_for_each_item_on__general-cde_(CDE_General_Share)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "fileId": "@items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['path']",
+                                                        "inferContentType": true
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile-1",
+                                                        "operationId": "getFileContent",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                }
+                                            },
+                                            "Get_file_metadata": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "fileId": "@items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['path']"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile-1",
+                                                        "operationId": "getFileMetadata",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Get_file_content_for_each_item_on__general-cde_(CDE_General_Share)": [
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            },
+                                            "Verify_file_on_audting-cde_(Auditing_Share_CDE)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "fileId": "@concat('audting-cde\\General-Share/', formatDateTime(utcNow(), 'yyyy-MM-dd-HH-mm'), '_', items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['name'])"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile-1",
+                                                        "operationId": "getFileMetadata",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Create_file_on_audting-cde_(Auditing_Share_CDE)": [
+                                                        "FAILED",
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            },
+                                            "Verify_file_on_general-transferred-non-cde_(Transferred)": {
+                                                "type": "ServiceProvider",
+                                                "inputs": {
+                                                    "parameters": {
+                                                        "fileId": "@concat('general-transferred-non-cde/', items('For_each_Item_seen_on_general-cde_(CDE_General_Share)')?['name'])"
+                                                    },
+                                                    "serviceProviderConfiguration": {
+                                                        "connectionName": "AzureFile",
+                                                        "operationId": "getFileMetadata",
+                                                        "serviceProviderId": "/serviceProviders/AzureFile"
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "Create_file_on_general-transferred-non-cde_(Transferred)": [
+                                                        "FAILED",
+                                                        "SUCCEEDED"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "List_files_on_general-cde_(CDE_General_Share)": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "List_files_on_general-cde_(CDE_General_Share)": {
+                "type": "ServiceProvider",
+                "inputs": {
+                    "parameters": {
+                        "folderId": "general-cde"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "AzureFile-1",
+                        "operationId": "listFolder",
+                        "serviceProviderId": "/serviceProviders/AzureFile"
+                    },
+                    "retryPolicy": {
+                        "type": "none"
+                    }
+                },
+                "runAfter": {}
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "Recurrence_-_Every_5_Minutes": {
+                "type": "Recurrence",
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 5
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}
